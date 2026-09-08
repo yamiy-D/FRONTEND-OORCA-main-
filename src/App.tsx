@@ -16,6 +16,7 @@ import { FooterSection } from './components/FooterSection';
 import FloatingNavigationBubble from './components/FloatingNavigationBubble';
 import { ComingSoonPage } from './pages/ComingSoonPage';
 import { AlertCenterPage } from './pages/AlertCenterPage';
+import { SimulationPage } from './pages/SimulationPage';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -83,7 +84,7 @@ export default function App() {
 
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/simulation" element={<ComingSoonPage pageType="simulation" />} />
+        <Route path="/simulation" element={<SimulationPage />} />
         <Route path="/data" element={<ComingSoonPage pageType="data" />} />
         <Route path="/alerts" element={<AlertCenterPage />} />
         <Route path="/dev" element={<ComingSoonPage pageType="dev" />} />

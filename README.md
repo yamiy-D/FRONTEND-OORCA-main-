@@ -1,199 +1,562 @@
-# OORCA — AI-Powered Marine Environmental Intelligence Platform
+# OORCA — Oil Spill Simulator & Marine Environmental Intelligence
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.5-blue.svg)](https://www.typescriptlang.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue.svg)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19.0-cyan.svg)](https://reactjs.org/)
-[![Vite](https://img.shields.io/badge/Vite-6.0-purple.svg)](https://vitejs.dev/)
+[![Vite](https://img.shields.io/badge/Vite-6.2-purple.svg)](https://vitejs.dev/)
+[![Leaflet](https://img.shields.io/badge/Leaflet-1.9-green.svg)](https://leafletjs.com/)
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.0-38bdf8.svg)](https://tailwindcss.com/)
 [![License](https://img.shields.io/badge/License-Apache_2.0-green.svg)](LICENSE)
 
-> **OORCA** (*Ocean Observation & Radar Forensic Architecture*) is an advanced geospatial intelligence and maritime liability assessment system. It combines synthetic aperture radar (SAR) satellite imagery, historical AIS vessel tracking, metocean hydrodynamic simulations, and Bayesian probabilistic models to detect marine oil spills, trace their origins, identify suspect vessels, and compile legal-grade evidence dossiers for maritime authorities and coastal states.
+---
+
+## 1. PROJECT OVERVIEW
+
+**OORCA** (*Ocean Observation & Risk Coastal Analysis / Oil Spill Response & Coastal Risk Analysis*) is a professional ocean intelligence, oil spill monitoring, and scientific hydrodynamic simulation platform.
+
+The **Oil Spill Simulator** (`/simulation`) serves as the primary operational command center of the OORCA platform. It empowers maritime emergency response teams, coast guards, port authorities, and environmental scientists to:
+- Model and inspect oil spill spreading dynamics across active sea lanes.
+- Interactively project multi-tier hydrocarbon concentration contours from origin coordinates over 72-hour forward timelines.
+- Quantify weathering mechanisms (evaporation rates, natural dispersion, and remaining surface oil).
+- Assess acute risks to marine ecosystems, coastal flora/fauna, and human health.
+- Forecast shoreline arrival times across vulnerable beaches, ports, and coastal communities.
 
 ---
 
-## 🌊 System Overview
+## 2. FEATURES
 
-Unlike generic environmental dashboards or surface-level marine awareness tools, OORCA is engineered as an actionable **tactical command and forensic investigation suite** for:
-- **Port State Control (PSC) & Maritime Authorities**
-- **Coast Guards & Environmental Ministries**
-- **Maritime Legal Teams & Protection & Indemnity (P&I) Clubs**
-- **Ocean Conservation & Response Taskforces**
+- **Interactive Geospatial Map**:
+  - High-resolution dark satellite ocean and maritime basemaps.
+  - Interactive point-and-click coordinate selection directly from the ocean canvas.
+  - Dynamic map layers (Satellite Ocean, Dark Maritime, Ocean Basemap).
+  - Subtle metocean current streamlines with animated directional vectors.
+  - Toggleable wind and wave overlay grids.
+  - Integrated nautical compass and dynamic metric scale bar.
+- **Organic Oil Concentration Contours**:
+  - Multi-tier hydrodynamic plume visualization reflecting physical spreading.
+  - Realistic color scale: Very Thick (near black) → Thick (deep red) → Medium (red-orange) → Thin (orange) → Very Thin (yellow sheen).
+  - Directional elongation aligned with combined wind and surface current drift vectors.
+- **Vessel Kinematics & Origin Pin**:
+  - Prominent red location pin marker at the spill origin.
+  - Vessel silhouette oriented dynamically to ship heading (0–360°).
+  - Reconstructed vessel trajectory axis and wake dispersion line.
+- **Simulation Timeline Controls**:
+  - Play, pause, and interactive scrubber slider across 0 to 72 hours.
+  - Configurable simulation steps (+12h, +24h, +36h, +48h, +60h, +72h).
+  - Real-time timestamp calculation and progress counter.
+- **Input Parameters Panel**:
+  - Coordinate inputs (Latitude, Longitude) with geocoded location name.
+  - Spill parameter configuration: Amount, Unit (Tonnes, Barrels, m³, Gallons), Oil Type (Crude, Diesel, Heavy Fuel, Marine Fuel, Refined), Start Time.
+  - Vessel details: Name, Vessel Type, IMO Number, Length, Breadth, Draft, Heading.
+  - One-click `▶ RUN SIMULATION` engine re-calculation.
+- **Bottom Analytics & Risk Dashboard**:
+  - **Spill Summary**: Total spilled, estimated slick area (km² via Fay's spreading equations), max shore arrival, weathering level, evaporation %, dispersion %, and surface remaining %.
+  - **Danger Assessment**: Overall risk status badge (HIGH / MEDIUM / LOW), risk to environment, risk to shoreline, risk to human health, and clean-up difficulty.
+  - **Ecological Inhabitants at Risk**: Structured ecological census (Mangroves, Coral Reefs, Seagrass Beds, Dolphins, Sea Turtles, Commercial Fish, Plankton) with presence and risk levels.
+  - **Shoreline Impact (Est.)**: Coastal impact receptor table (Alibaug, Revdanda, Murud, Kihim, Dighi) with estimated arrival windows and click-to-pan camera focus.
+- **Export & Session State**:
+  - Save simulation configuration to local browser storage.
+  - Export full scientific JSON simulation dossier.
+  - One-click URL coordinate sharing.
+  - Full modular separation ready for backend OpenDrift / NOAA / Copernicus API integration.
 
 ---
 
-## 🚨 The Alert Centre Investigation Workflow
+## 3. INTERACTIVE SIMULATION MAP (MAPLIBRE GL INTEGRATION)
 
-The Alert Centre implements an end-to-end investigative sequence designed to establish accountability under international maritime standards (UNCLOS Art. 217, MARPOL Annex I):
+The OORCA simulation engine features a high-performance **WebGL-powered interactive map** built with **MapLibre GL JS**, drawing architectural inspiration from modern ocean intelligence and situational command platforms (like OSIRIS):
 
-```mermaid
-graph TD
-    A[1. Oil Spill Detected by Satellite SAR] --> B[2. Morphological Analysis & Sizing]
-    B --> C[3. Coordinate Centroid Identification]
-    C --> D[4. Hydrodynamic Origin Back-Calculation]
-    D --> E[5. Forward Plume Trajectory Prediction]
-    E --> F[6. Historic AIS Vessel Intersection Filtering]
-    F --> G[7. Multi-Factor Bayesian Suspect Scoring]
-    G --> H[8. Potential Violations & Evidence Compilation]
-    H --> I[9. Cryptographic Chain-of-Custody Dossier Export]
+### Why MapLibre GL JS?
+- **Full WebGL Performance**: Renders high-density geographic data, multi-tier concentration plumes, and hydrodynamic flowlines smoothly at 60 FPS using hardware acceleration.
+- **Dynamic GeoJSON Updates**: Sources (`oil-spill`, `spill-area`, `plume-contours`) are updated live via `source.setData()` without flickering or full canvas re-initialization.
+- **Dark Maritime Basemap**: Uses the high-contrast Carto Dark Matter GL vector style (`https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json`) by default, keeping focus firmly on the ocean and spill telemetry.
+- **Smooth Camera Mechanics**: High-precision `map.flyTo()` transitions with easing, pitch, bearing, and zoom interpolation.
+- **Open-Source Freedom**: BSD-3 licensed, free of restrictive commercial tokens or vendor lock-in.
+
+### Component Architecture (`SimulationMap.tsx`)
+```text
+Map Initialization (MapLibre GL + Dark Matter Vector Basemap)
+       ↓
+Map Controls (Zoom In/Out, Pitch Visualization, Compass Reset)
+       ↓
+Interactive Location Selection (Click map → Capture lat/lng → FlyTo)
+       ↓
+Oil Spill Source Layer (oil-spill-glow + oil-spill-core circle layers)
+       ↓
+Oil Spill Affected Area Layer (spill-area-fill + spill-area-outline)
+       ↓
+Dynamic Plume Contours & Trajectory Axis (OpenDrift Physical Model)
+       ↓
+Smooth Camera Movement (Targeted pan/zoom on click or shoreline focus)
 ```
 
-### 1. Oil Spill Detection
-High-resolution SAR (Sentinel-1, TerraSAR-X, ICEYE) and optical imagery detect surface tension anomalies and ocean backscatter dampening caused by hydrocarbons.
+### Layer Hierarchy
+```text
+BASE MAP (Carto Dark Matter GL)
+│
+├── 🌊 Ocean Currents / Streamlines (`ocean-currents-lines`)
+│
+├── 🟠 Oil Spill Affected Area (`spill-area-fill` & `spill-area-outline`)
+│
+├── 🛢️ Multi-Tier Plume Contours (`plume-contours-fill` & `plume-contours-outline`)
+│
+├── 📍 Trajectory Axis Line (`trajectory-axis`)
+│
+├── 💨 Wind & Waves Vector Field (`env-vectors-points`)
+│
+├── 🛳️ Vessel Marker & Heading Alignment
+│
+└── 🔴 Oil Spill Source Marker (`oil-spill-glow` & `oil-spill-core`)
+```
 
-### 2. Physical & Morphological Analysis
-Estimates plume area ($km^2$), length, width, estimated slick age (hours), and volumetric discharge using empirical radar inversion models.
-
-### 3. Coordinate Pinpointing
-Precise geographic centroid coordinates ($XX.XXXX^\circ\text{ N}, XX.XXXX^\circ\text{ E}$), Exclusive Economic Zone (EEZ) boundaries, and maritime zone classification.
-
-### 4. Origin Back-Tracing
-Lagrangian hydrodynamic advection models reverse-calculate ocean currents ($u, v$ vectors) and wind shear ($3\%$ windage factor) over elapsed hours to pinpoint the precise location and temporal release window.
-
-### 5. Forward Movement Predictions
-Simulates future trajectory dispersion at **+6 Hours**, **+12 Hours**, and **+24 Hours** to protect marine protected areas, sensitive coral habitats, and coastal infrastructure.
-
-### 6. AIS Traffic Filtering
-Automatically isolates relevant commercial traffic from background vessels. Filters vessels transiting within the temporal origin window ($T_0 \pm \Delta t$) and spatial radius ($R_0$).
-
-### 7. Suspect Attribution Scoring
-Scores candidate vessels on a forensic $0-100$ scale across five core parameters:
-- **Proximity:** Distance between vessel AIS fix and hydrodynamic origin ($NM$).
-- **Time Relevance:** Temporal overlap with plume formation.
-- **Trajectory Alignment:** Heading congruence with slick drift axis.
-- **AIS Behaviour:** Transponder shutdowns, dark gaps, or abnormal reporting rates.
-- **Vessel Maneuver:** Unscheduled engine throttles, course deviations, or slow speed loitering.
-
-### 8. Statutory Violations & Evidence
-Highlights suspected MARPOL Annex I illegal discharges, SOLAS Chapter V AIS carriage non-compliance, and route anomalies with regulatory references.
-
-### 9. Legal Dossier Export
-Generates a printable, cryptographically fingerprinted (SHA-256) evidence package ready for Port State Control vessel interdiction.
+### Dynamic Polygon Generation
+The map generates geodesic polygons around spill coordinates with 64 coordinate steps using great-circle trigonometry:
+```ts
+createCircle(lng, lat, affectedRadius, 64)
+```
 
 ---
 
-## 🏛 Clean Architecture & Modular Data Layer
+## 4. PREREQUISITES
 
-The project follows a clean separation of concerns:
+Before running the application, ensure the following software is installed on your workstation:
+- **Node.js**: Version 18.x or higher (Node 20+ recommended).
+- **npm**: Version 9.x or higher (comes bundled with Node.js).
+- Modern web browser with WebGL and Canvas support (Google Chrome, Firefox, Safari, Edge).
+
+---
+
+## 4. INSTALLATION
+
+1. Open your terminal in the project directory:
+   ```bash
+   cd oorca-marine-intelligence
+   ```
+
+2. Install all required project dependencies:
+   ```bash
+   npm install
+   ```
+
+---
+
+## 5. ENVIRONMENT INITIALIZATION
+
+1. Copy the template environment file:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Open `.env` in your text editor and configure your environment variables:
+   ```env
+   # GEMINI_API_KEY: Required for server-side AI features (if enabled)
+   GEMINI_API_KEY=
+
+   # Map API Key (e.g. Mapbox, Esri, or Google Maps Platform)
+   VITE_MAP_API_KEY=
+
+   # NOAA Oceanographic / Metocean API
+   VITE_NOAA_API_KEY=
+
+   # Copernicus Marine CMEMS / Sentinel Hub API
+   VITE_COPERNICUS_API_KEY=
+
+   # Operating mode ('demo' or 'live')
+   VITE_ENVIRONMENT_MODE=demo
+   ```
+
+> ⚠️ **IMPORTANT SECURITY NOTICE:**
+> - Leave actual API keys empty if you do not have active external subscriptions. The platform automatically operates in **Calibrated DEMO Mode**.
+> - **NEVER commit your actual `.env` file containing secrets to version control.** `.gitignore` is configured to prevent accidental commits.
+
+---
+
+## 6. HOW TO START THE APPLICATION
+
+To launch the local development server:
+
+```bash
+npm run dev
+```
+
+The terminal will display the local development URL (typically `http://localhost:3000`). Open this link in your browser to access the OORCA platform.
+
+Navigate directly to the simulation interface:
+- Via browser URL: `http://localhost:3000/simulation`
+- Via the floating Command Navigation Wheel: Click the `Sim` icon.
+
+To build the production bundle:
+```bash
+npm run build
+```
+
+To preview the production build locally:
+```bash
+npm run preview
+```
+
+---
+
+## 7. HOW TO STOP THE APPLICATION
+
+To stop the development server running in your terminal:
+1. Focus your terminal window where `npm run dev` is executing.
+2. Press:
+   ```
+   Ctrl + C
+   ```
+   *(or `Cmd + C` on macOS)*
+3. If prompted `Terminate batch job (Y/N)?`, type `Y` and press Enter.
+
+This safely terminates the Node.js development server process.
+
+---
+
+## 8. HOW THE SIMULATION WORKS
+
+The simulation pipeline follows a structured 11-step execution flow:
+
+```
+[1. Application Loads]
+        ↓
+[2. Default Simulation Parameters Initialize (100t Crude Oil, Arabian Sea, MV Oceanic Star)]
+        ↓
+[3. Map Canvas Initializes (Offshore Mumbai / Maharashtra Coast corridor)]
+        ↓
+[4. Metocean Conditions Ingested (Wind 14.5 kts, Current 1.2 kts, Water Temp 28.5°C)]
+        ↓
+[5. User Modifies Location / Coordinates / Spill Volume / Vessel Attributes]
+        ↓
+[6. User Clicks '▶ RUN SIMULATION' or Drags Timeline Scrubber]
+        ↓
+[7. Simulation Service Ingests Metocean Drift Vectors]
+        ↓
+[8. Hydrodynamic Contours Generated (5 Concentration Tiers: Very Thick to Very Thin Sheen)]
+        ↓
+[9. Weathering Rates Computed (Fay's Spreading, Evaporation %, Natural Dispersion %)]
+        ↓
+[10. Danger Assessment & Ecological Habitats Evaluated]
+        ↓
+[11. Coastal Arrival Windows Updated & Interactive Playback Enabled]
+```
+
+---
+
+## 9. DEMO MODE VS LIVE DATA MODE
+
+### DEMO MODE (Default)
+- **Active when**: `VITE_ENVIRONMENT_MODE=demo` or when external API keys are empty.
+- **Behavior**: Uses scientifically calibrated hydrodynamic dispersion algorithms based on real-world oceanographic baselines for the Arabian Sea / Maharashtra coastal waters.
+- **Safety**: Runs 100% locally and reliably without external network dependencies, rate limits, or API billing costs.
+
+### LIVE DATA MODE
+- **Active when**: Valid API keys for NOAA, Copernicus CMEMS, or OpenDrift microservices are configured in `.env`.
+- **Behavior**: Queries live meteorological and ocean current vector grids ($u, v$), assimilating real-time satellite radar passes and live AIS transponder broadcasts.
+
+*Note: OORCA clearly distinguishes demo mode from live data feeds to ensure transparency.*
+
+---
+
+## 10. PROJECT ARCHITECTURE
+
+The Simulation Page codebase is organized into clean, modular layers:
 
 ```
 src/
-├── types/
-│   └── alertTypes.ts             # Strict domain models (Incidents, Vessels, Metocean, Violations)
-├── services/
-│   ├── api/
-│   │   ├── satelliteService.ts   # Satellite imagery ingestion with mock fallbacks
-│   │   ├── aisService.ts         # Live & historical AIS vessel tracking API service
-│   │   └── oceanService.ts       # Metocean current, wave, and wind field data service
-│   └── analysis/
-│       ├── trajectoryEngine.ts   # Lagrangian forward & backward drift math
-│       └── suspectScorer.ts      # Multi-factor Bayesian attribution algorithms
-├── data/
-│   └── alertsData.ts             # Calibrated real-world incident scenarios (Hormuz, North Sea, Malacca)
+├── pages/
+│   ├── SimulationPage.tsx             # Main Simulation workspace page
+│   ├── AlertCenterPage.tsx            # Alert Centre forensic investigation suite
+│   └── HomePage.tsx                   # Platform homepage
+│
 ├── components/
-│   ├── alerts/
-│   │   ├── AlertsHeader.tsx                   # Status indicators & metrics
-│   │   ├── ActiveAlertsCards.tsx              # Incident selector cards
-│   │   ├── SatelliteSpillViewer.tsx           # SAR & Multispectral comparison viewer
-│   │   ├── SpillLocationAndCharacteristics.tsx # Coordinates & physical properties
-│   │   ├── SpillTrajectoryMap.tsx             # Vector trajectory canvas & metocean bar
-│   │   ├── SuspectVesselInvestigation.tsx      # Suspect profile, gauge & reconstructed route
-│   │   ├── PotentialViolationsSection.tsx     # Non-adjudicative regulatory findings
-│   │   ├── InvestigationTimelineSection.tsx   # Chronological event sequence
-│   │   ├── AlertActionsBar.tsx                # Incident lifecycle & action triggers
-│   │   └── InvestigationDossierModal.tsx      # Printable forensic evidence dossier
-│   └── FloatingNavigationBubble.tsx          # Circular futuristic navigation wheel
-└── pages/
-    ├── HomePage.tsx               # Cinematic OORCA homepage
-    ├── AlertCenterPage.tsx        # High-tech Alert Centre investigation interface
-    └── ComingSoonPage.tsx         # Sleek portal for upcoming modules
+│   └── simulation/
+│       ├── SimulationHeader.tsx       # Top branding bar, actions (New, Save, Export, Share)
+│       ├── InputParametersPanel.tsx   # Left collapsible control panel (Location, Spill, Vessel)
+│       ├── SimulationControls.tsx     # Floating playback HUD (Play/Pause, Slider, Timestamps)
+│       ├── ConcentrationLegend.tsx    # Floating 5-tier concentration thickness gradient
+│       ├── MapControls.tsx            # Layer switcher, Wind/Wave toggles, Zoom buttons
+│       ├── CompassAndScale.tsx        # Nautical compass and metric scale bar overlays
+│       ├── SimulationMap.tsx          # Leaflet interactive map with organic contour rendering
+│       ├── SpillSummary.tsx           # Spill area, total volume, weathering breakdown
+│       ├── DangerAssessment.tsx       # Overall risk status badge and categorical indicators
+│       ├── EcologicalRiskTable.tsx    # Ecological species/habitats vulnerability table
+│       └── ShorelineImpact.tsx        # Coastal landfall receptor table with arrival windows
+│
+├── services/
+│   ├── simulationService.ts          # Core simulation execution engine
+│   ├── riskAssessmentService.ts      # Multi-factor ecological and shoreline risk scoring
+│   ├── environmentalDataService.ts   # Ocean current, wind, and temperature data provider
+│   └── mapService.ts                 # Tile layer providers and coordinate utilities
+│
+├── types/
+│   └── simulation.ts                 # Strict TypeScript interfaces and domain types
+│
+├── data/
+│   ├── ecologicalData.ts             # Curated marine habitat vulnerability database
+│   └── shorelineData.ts              # Coastal receptor coordinates and arrival baselines
+│
+└── utils/
+    ├── simulationCalculations.ts     # Fay's spreading math, organic contour polygon generation
+    └── riskCalculations.ts           # Danger assessment and arrival window formulas
 ```
 
 ---
 
-## 🛠 Technology Stack
+## 11. SIMULATION BACKEND ENGINE & REST APIS
 
-- **Framework:** React 19 with TypeScript
-- **Bundler:** Vite 6
-- **Styling:** Tailwind CSS with custom maritime cyan/ocean color system
-- **Icons:** Lucide React (`lucide-react`)
-- **Animation:** Fluid CSS transforms and SVG vector path rendering
-- **Routing:** React Router v7 (`react-router-dom`)
+The **OORCA Simulation Backend** is a modular TypeScript/Express calculation engine that imports real-world open-source environmental data to model realistic oil spill movement, spreading geometry, and weathering kinetics.
 
----
+### Architecture Overview
 
-## 🚀 Installation & Local Development
+```text
+Data Providers (Open-Meteo Weather & Marine, Climatology)
+      ↓
+Data Normalization Layer (Strict SI Units: m/s, °C, km)
+      ↓
+Environmental Data Engine (Caching, Validation, Regional Context)
+      ↓
+Simulation Calculation Engine (Fay 3-Phase Spreading + Mackay Weathering)
+      ↓
+Simulation Results API (REST Endpoints)
+      ↓
+Frontend Simulation Map & Timeline Scrubber
+```
 
-### 1. Prerequisites
-- Node.js (v18 or higher recommended)
-- npm or yarn
+### Directory Structure
 
-### 2. Clone and Install
+```text
+backend/
+├── api/
+│   ├── simulation.routes.ts        # POST /start, GET /:id, GET /timeline, GET /measurements
+│   └── environment.routes.ts       # GET /api/environment
+├── controllers/
+│   ├── simulation.controller.ts    # Request validation and response formatting
+│   └── environment.controller.ts   # Lat/Lng query parameter validation
+├── services/
+│   ├── simulation.service.ts       # Time-stepped timeline & trajectory execution
+│   ├── environmentalData.service.ts# Data ingestion, normalization, & metadata tagging
+│   ├── oilSpillCalculation.service.ts # Hydrodynamic drift, Fay spreading, & weathering
+│   └── geometry.service.ts         # Elliptical geometry & multi-tier Bonn contours
+├── providers/
+│   ├── weather.provider.ts         # Open-Meteo 10m wind, gusts, & air temp
+│   ├── ocean.provider.ts           # Open-Meteo ocean currents, wave height, & SST
+│   └── geographic.provider.ts      # Sensitive coastal features & proximity
+├── models/
+│   ├── simulation.model.ts         # Strict TypeScript types for simulation
+│   └── environmentalData.model.ts  # Normalized environmental data structures
+├── utils/
+│   ├── vectorCalculation.ts        # Drift vectors with Coriolis deflection
+│   ├── unitConversion.ts           # knots, m/s, tonnes, bbls, m³
+│   └── geoCalculation.ts           # Haversine geodesics & destination coordinates
+└── config/
+    └── environment.ts              # Port, TTL caching, & physical constants
+```
+
+### Installation & Execution
+
+#### 1. Install Dependencies
 ```bash
-# Clone the repository
-git clone https://github.com/your-org/oorca-marine-intelligence.git
-cd oorca-marine-intelligence
-
-# Install dependencies
 npm install
 ```
 
-### 3. Environment Configuration
+#### 2. Start the Backend Server
+In development mode (starts Express with Vite SPA middleware on port 3000):
+```bash
+npm run dev
+```
 
-1. Copy the example configuration file:
+In production mode (compiles backend with esbuild and serves static build):
+```bash
+npm run build
+npm start
+```
+
+#### 3. Stop the Backend Server
+Press `Ctrl + C` in the terminal, or run:
+```bash
+pkill -f "tsx server.ts" || pkill -f "node dist/server.cjs"
+```
+
+### Environment Configuration
+
+Copy `.env.example` to `.env`:
 ```bash
 cp .env.example .env
 ```
 
-2. Open `.env` in your text editor and add your API keys (optional for development):
-```env
-# Satellite Imagery API (e.g. Copernicus / Sentinel Hub / Planet)
-VITE_SATELLITE_API_KEY=YOUR_SATELLITE_API_KEY_HERE
+| Variable | Description | Default |
+| :--- | :--- | :--- |
+| `PORT` | External port for the server | `3000` |
+| `WEATHER_API_KEY` | Optional API key for external weather services (Open-Meteo works without keys) | `""` |
+| `OCEAN_DATA_API_KEY` | Optional API key for ocean current services | `""` |
+| `NOAA_API_KEY` | Optional NOAA GFS API key | `""` |
+| `COPERNICUS_API_KEY` | Optional Copernicus Marine API key | `""` |
 
-# AIS Live & Historical Vessel Tracking API (e.g. Spire / MarineTraffic)
-VITE_AIS_API_KEY=YOUR_AIS_API_KEY_HERE
+### Open-Source Data Providers & Caching
 
-# Oceanographic Metocean API (e.g. CMEMS / NOAA)
-VITE_OCEAN_DATA_API_KEY=YOUR_OCEAN_DATA_API_KEY_HERE
+- **Weather Provider (`weather.provider.ts`)**: Retrieves live 10m wind velocity and direction from Open-Meteo Global Weather Model (ECMWF/GFS). Results are cached in-memory for 30 minutes.
+- **Ocean Provider (`ocean.provider.ts`)**: Retrieves surface current velocity and direction, significant wave height, and sea surface temperature from Open-Meteo Marine API. Results are cached in-memory for 60 minutes.
+- **Fallback & Metadata Transparency**: When external APIs encounter network timeouts or rate limits, the system falls back to calibrated regional oceanographic climatology (e.g. Arabian Sea/INCOIS baselines) and explicitly tags `status: "cached"` or `status: "estimated"` with `confidence: "medium"`. Real observed data is strictly distinguished from estimated data.
 
-# Weather & Marine Wind API (e.g. ECMWF / OpenWeather)
-VITE_WEATHER_API_KEY=YOUR_WEATHER_API_KEY_HERE
+### API Endpoint Documentation
+
+#### 1. Start Simulation
+- **Endpoint**: `POST /api/simulation/start`
+- **Description**: Ingests spill parameters, fetches real-world metocean data, and executes a full time-stepped simulation timeline.
+- **Request Body**:
+```json
+{
+  "latitude": 18.9076,
+  "longitude": 72.8177,
+  "oilQuantity": 5000,
+  "oilType": "crude_oil",
+  "startTime": "2026-09-06T00:00:00Z",
+  "simulationDuration": 72,
+  "timeStepMinutes": 60
+}
+```
+- **Response** (`201 Created`):
+```json
+{
+  "simulationId": "sim_1772960000_a8b9c0",
+  "status": "completed",
+  "environment": {
+    "windSpeed": 7.4,
+    "windDirection": 245,
+    "currentSpeed": 0.62,
+    "currentDirection": 68,
+    "temperature": 28.5,
+    "waveHeight": 1.6
+  },
+  "spill": {
+    "oilType": "crude_oil",
+    "quantity": 5000,
+    "unit": "metric_tonnes"
+  },
+  "measurements": {
+    "areaKm2": 18.6,
+    "lengthKm": 8.2,
+    "widthKm": 3.7,
+    "movementDistanceKm": 24.5,
+    "spreadRate": 0.35,
+    "evaporationPct": 32.4,
+    "dispersionPct": 14.8,
+    "remainingOnSurfacePct": 52.8
+  },
+  "geometry": {
+    "centroid": { "latitude": 18.985, "longitude": 72.932 },
+    "boundingBox": { "minLat": 18.94, "maxLat": 19.03, "minLng": 72.88, "maxLng": 72.98 },
+    "coordinates": [[18.95, 72.89], [18.98, 72.95]],
+    "contours": []
+  },
+  "trajectory": [
+    { "hour": 0, "latitude": 18.9076, "longitude": 72.8177, "distanceFromOriginKm": 0 },
+    { "hour": 1, "latitude": 18.9088, "longitude": 72.8194, "distanceFromOriginKm": 0.34 }
+  ],
+  "timeline": [],
+  "metadata": {
+    "environmentalDataSource": "Open-Meteo High-Resolution Global Weather & Marine Analysis",
+    "simulationModel": "OORCA Hydrodynamic Dispersion & Fay Spreading Engine v1.0",
+    "confidence": "high",
+    "calculationMethod": "Coupled Hydrodynamic-Atmospheric Lagrangian Drift & Three-Phase Spreading",
+    "isEstimated": true
+  }
+}
 ```
 
-> ⚠️ **IMPORTANT SECURITY DIRECTIVE:**
-> - **Never commit your actual `.env` file containing secrets to GitHub or any public repository.**
-> - The `.gitignore` file is pre-configured to strictly exclude all `.env` files while preserving `.env.example`.
-> - If no API keys are provided or demo placeholders are used (`demo_satellite_key`), OORCA **gracefully falls back to high-fidelity calibrated mock data**, guaranteeing that the platform runs flawlessly in preview and evaluation environments without crashing.
+#### 2. Get Simulation Results
+- **Endpoint**: `GET /api/simulation/:id`
+- **Response** (`200 OK`): Full simulation object including current state, geometry, measurements, and metadata.
 
-### 4. Start Development Server
-```bash
-npm run dev
-```
-Open your browser at [http://localhost:3000](http://localhost:3000) (or the displayed Vite local URL).
+#### 3. Get Simulation Timeline
+- **Endpoint**: `GET /api/simulation/:id/timeline`
+- **Response** (`200 OK`): Array of all hourly or interval timesteps with geometry and weathering values.
 
-### 5. Production Build
-```bash
-npm run build
+#### 4. Get Environmental Data
+- **Endpoint**: `GET /api/environment?latitude=18.9076&longitude=72.8177`
+- **Response** (`200 OK`): Normalized environmental object:
+```json
+{
+  "location": { "latitude": 18.9076, "longitude": 72.8177 },
+  "timestamp": "2026-09-06T08:00:00.000Z",
+  "wind": { "speed": 7.4, "direction": 245, "speedKts": 14.4 },
+  "oceanCurrent": { "speed": 0.62, "direction": 68, "speedKts": 1.2 },
+  "temperature": 28.5,
+  "airTemperature": 30.5,
+  "waveHeight": 1.6,
+  "metadata": {
+    "source": "Open-Meteo Weather & Marine Analysis",
+    "status": "observed",
+    "confidence": "high",
+    "fetchedAt": "2026-09-06T08:00:02.124Z"
+  }
+}
 ```
-Generates production-optimized static assets in the `/dist` directory.
+
+#### 5. Get Spill Measurements
+- **Endpoint**: `GET /api/simulation/:id/measurements`
+- **Response** (`200 OK`):
+```json
+{
+  "simulationId": "sim_1772960000_a8b9c0",
+  "measurements": {
+    "surfaceAreaKm2": 18.6,
+    "estimatedRadiusKm": 2.43,
+    "estimatedLengthKm": 8.2,
+    "estimatedWidthKm": 3.7,
+    "movementDistanceKm": 24.5,
+    "direction": 68,
+    "spreadRate": 0.35,
+    "evaporationPct": 32.4,
+    "dispersionPct": 14.8,
+    "remainingOnSurfacePct": 52.8
+  }
+}
+```
 
 ---
 
-## 🔐 API Integration Guide
+## 12. FUTURE INTEGRATION POSSIBILITIES
 
-| API Variable | Service Role | Supported Providers | Fallback Behavior |
-| :--- | :--- | :--- | :--- |
-| `VITE_SATELLITE_API_KEY` | Fetches SAR & optical satellite swaths, polarization backscatter data | Copernicus Sentinel-1, PlanetScope, ICEYE SAR | Uses calibrated SAR raster and vector boundary overlays |
-| `VITE_AIS_API_KEY` | Queries terrestrial and satellite AIS historical vessel track logs | Spire Maritime, MarineTraffic, AISHub | Reconstructs 24 background vessels and 2 candidate paths |
-| `VITE_OCEAN_DATA_API_KEY` | Retrieves surface current velocity vectors ($u, v$) | Copernicus Marine (CMEMS), NOAA HYCOM | Computes Lagrangian drift using regional hydrodynamic models |
-| `VITE_WEATHER_API_KEY` | Surface wind speed ($10\text{m}$ level), heading, and sea state | ECMWF IFS, NOAA GFS, OpenWeather Marine | Provides accurate Beaufort scale wave heights and windage |
+The architecture is built ready for integration with external scientific systems:
+1. **OpenDrift Ocean Modeling Suite**: Connection to an OpenDrift Python backend running the `OpenOil` sub-module for full multi-component Lagrangian particle tracking.
+2. **Copernicus Marine Environment Monitoring Service (CMEMS)**: Direct ingestion of Global Ocean Physics Analysis and Forecast ($1/12^\circ$ resolution current vectors).
+3. **NOAA Global Forecast System (GFS)**: Live $10\text{m}$ wind field vectors and sea surface temperature (SST) grids.
+4. **EMODnet Seabed & Biology**: Real-time European and international marine habitat sensitivity mapping.
+5. **Real-time AIS Telemetry**: Live transponder streaming via Spire Global or AISHub for automated vessel attribution.
+6. **Gemini AI Environmental Analysis**: Automated risk narrative generation and regulatory impact briefs.
 
 ---
 
-## 📜 Legal & Evidentiary Disclaimer
+## 12. TROUBLESHOOTING
 
-The OORCA platform generates non-adjudicative preliminary intelligence reports based on satellite remote sensing and algorithmic drift calculations. Suspect scores, violation flags, and trajectory back-calculations are evidentiary screening indicators intended to prioritize physical Port State Control inspections and do not constitute formal criminal indictment without statutory flag-state due process.
+### Map Not Loading
+- **Cause**: Network restriction or tile server timeout.
+- **Solution**: Switch tile layers using the Map Layers tool in the top-right corner to *Dark Maritime* or *Ocean Basemap*.
+
+### Port Already in Use (EADDRINUSE: 3000)
+- **Cause**: Another process is occupying port 3000.
+- **Solution**: Stop any previous dev server processes (`Ctrl + C`) or run:
+  ```bash
+  npx kill-port 3000
+  ```
+  Then restart with `npm run dev`.
+
+### Missing Dependencies
+- **Cause**: Incomplete `node_modules` installation.
+- **Solution**: Run a clean install:
+  ```bash
+  rm -rf node_modules package-lock.json
+  npm install
+  ```
+
+### TypeScript / Lint Warnings
+- **Solution**: Validate the codebase with:
+  ```bash
+  npm run lint
+  ```
 
 ---
 
 ## 📄 License
 
-Licensed under the Apache License, Version 2.0 (the "License"). You may obtain a copy of the License in the root directory.
+Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for details.
